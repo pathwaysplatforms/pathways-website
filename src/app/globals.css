@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Custom Properties ─────────────────────────────────────── */
+:root {
+  --pw-bg:       #FFFFFF;
+  --pw-ink:      #0D0D0D;
+  --pw-muted:    #6B6B6B;
+  --pw-rule:     rgba(0, 0, 0, 0.08);
+  --pw-accent:   #1A56DB;
+  --pw-particle: #1A1A1A;
+  --pw-surface:  #F7F7F5;
+
+  --pw-font-display: 'Instrument Serif', Georgia, serif;
+  --pw-font-body:    'DM Sans', system-ui, sans-serif;
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Urbanist', sans-serif;
+  background-color: var(--pw-bg);
+  color: var(--pw-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Component Layer ────────────────────────────────────────────── */
+@layer components {
+
+  .pw-card {
+    border: 1px solid var(--pw-rule);
+    border-radius: 12px;
+    background: var(--pw-bg);
+    padding: 28px;
+    transition: border-color 150ms ease;
+  }
+
+  .pw-card:hover {
+    border-color: rgba(0, 0, 0, 0.18);
+  }
+
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────── */
+@layer utilities {
+
+  .font-display {
+    font-family: var(--pw-font-display);
+  }
+
+  .font-body {
+    font-family: var(--pw-font-body);
+  }
+
+  .pw-eyebrow {
+    font-family: var(--pw-font-body);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--pw-muted);
+  }
+
+  .pw-rule {
+    border: none;
+    border-top: 1px solid var(--pw-rule);
+  }
+
+}
+
+/* ─── Sheen keyframe ─────────────────────────────────────────────── */
+@keyframes sheen {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ─── Entry animations ───────────────────────────────────────────── */
+@keyframes pw-entry {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pw-entry {
+  animation: pw-entry 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .pw-entry {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}

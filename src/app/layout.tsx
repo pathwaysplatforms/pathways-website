@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Urbanist, Instrument_Serif, DM_Sans } from "next/font/google";
+import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 
 const urbanist = Urbanist({
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${urbanist.variable} ${instrumentSerif.variable} ${dmSans.variable}`}
     >
       <body className="font-sans">
+        <Navbar />
         {children}
         {/* Grain / film-noise overlay */}
         <svg

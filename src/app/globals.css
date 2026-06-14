@@ -92,9 +92,29 @@ html, body {
   animation: pw-entry 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* ── Hero page-load animation (staggered via inline animationDelay) ── */
+@keyframes hero-entry {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-entry {
+  animation: hero-entry 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Scrollbar hide ─────────────────────────────────────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .pw-entry {
+  .pw-entry,
+  .hero-entry {
     animation: none !important;
     opacity: 1;
     transform: none;

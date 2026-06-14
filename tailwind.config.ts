@@ -17,9 +17,10 @@ const config: Config = {
       },
 
       fontFamily: {
-        sans:    ["Urbanist", "sans-serif"],
-        display: ["Urbanist", "sans-serif"],
-        body:    ["DM Sans", "system-ui", "sans-serif"],
+        // Reference next/font CSS variables set on <html> in layout.tsx
+        sans:    ["var(--font-urbanist)", "sans-serif"],
+        display: ["var(--font-instrument-serif)", "Georgia", "serif"],
+        body:    ["var(--font-dm-sans)", "system-ui", "sans-serif"],
       },
 
       colors: {
@@ -30,6 +31,23 @@ const config: Config = {
           accent:   "#1A56DB",
           particle: "#1A1A1A",
           surface:  "#F7F7F5",
+        },
+        // Design-token greens (design-tokens.md §2)
+        green: {
+          deep:    "#0D4A3A",
+          muted:   "#2A5C4E",
+          surface: "#1C3D32",
+          light:   "#E8F0EE",
+          tint:    "#F2F6F5",
+        },
+        // Neutral grey scale (design-tokens.md §2)
+        grey: {
+          100: "#F4F4F4",
+          200: "#E5E5E5",
+          300: "#C4C4C4",
+          500: "#6B6B6B",
+          700: "#3D3D3D",
+          900: "#1A1A1A",
         },
         bg: {
           base: "#EDEEF2",
@@ -86,6 +104,7 @@ const config: Config = {
         "card-lg": "0 8px 24px 0 rgba(0,0,0,0.09), 0 4px 8px -2px rgba(0,0,0,0.05)",
         sidebar:   "2px 0 12px 0 rgba(0,0,0,0.05)",
         accent:    "0 4px 20px 0 rgba(20,144,156,0.30), 0 1px 4px 0 rgba(20,144,156,0.20)",
+        green:     "0 8px 30px rgba(13,74,58,0.14), 0 2px 8px rgba(13,74,58,0.08)",
       },
 
       transitionDuration: {

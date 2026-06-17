@@ -6,7 +6,7 @@ import { CheckCircle2, Minus, ArrowRight } from "lucide-react";
 import { CTASection } from "@/components/landing/CTASection";
 import { Footer }     from "@/components/Footer";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.example.com";
+import { ONBOARDING_URL } from "@/lib/constants";
 
 // ── Data ───────────────────────────────────────────────────────────────────────
 
@@ -28,7 +28,7 @@ const TIERS: Tier[] = [
     monthly:     0,
     annual:      0,
     cta:         "Start for free",
-    ctaHref:     `${APP_URL}/auth/login?intent=signup`,
+    ctaHref:     ONBOARDING_URL,
     highlighted: false,
     features: [
       "Pathway matching (top 3 results)",
@@ -44,7 +44,7 @@ const TIERS: Tier[] = [
     monthly:     29,
     annual:      19,
     cta:         "Get started",
-    ctaHref:     `${APP_URL}/auth/login?intent=signup&plan=individual`,
+    ctaHref:     `${ONBOARDING_URL}?plan=individual`,
     highlighted: true,
     features: [
       "Everything in Free",
@@ -62,7 +62,7 @@ const TIERS: Tier[] = [
     monthly:     79,
     annual:      59,
     cta:         "Get started",
-    ctaHref:     `${APP_URL}/auth/login?intent=signup&plan=pro`,
+    ctaHref:     `${ONBOARDING_URL}?plan=pro`,
     highlighted: false,
     features: [
       "Everything in Individual",

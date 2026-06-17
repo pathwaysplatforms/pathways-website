@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "Most people don't need a $5,000 lawyer. They need clear information, in their language, in one place. That's what Pathways is.",
 };
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.example.com";
+import { ONBOARDING_URL } from "@/lib/constants";
 
 // ── Shared primitives ──────────────────────────────────────────────────────────
 
@@ -61,7 +61,7 @@ function PageHero() {
           in their language, without the confusion.
         </p>
         <a
-          href={`${APP_URL}/auth/login?intent=signup`}
+          href={ONBOARDING_URL}
           className="inline-flex items-center gap-2 bg-white text-green-deep font-semibold text-base px-8 py-4 rounded-full min-h-[52px] hover:bg-green-tint active:scale-[0.98] transition-all duration-150 shadow-xl"
         >
           Find My Pathway →
@@ -414,7 +414,7 @@ function LawyerSection() {
 
         <p className="mt-8 text-sm text-grey-400">
           Not sure which category you fall into?{" "}
-          <Link href={`${APP_URL}/auth/login?intent=signup`} className="text-green-deep font-medium hover:underline">
+          <Link href={ONBOARDING_URL} className="text-green-deep font-medium hover:underline">
             Start with Pathways for free
           </Link>{" "}
           and we&apos;ll tell you.

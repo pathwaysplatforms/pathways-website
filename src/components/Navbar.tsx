@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Globe, Menu, X } from "lucide-react";
 import { setLocale } from "@/app/actions/locale";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.example.com";
+import { APP_URL, ONBOARDING_URL } from "@/lib/constants";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -22,7 +22,9 @@ export function Navbar() {
 
   useEffect(() => {
     if (!isHome) return;
-    const onScroll = () => setScrolled(window.scrollY > 80);
+    // Go solid only after the 200vh hero sticky section is fully scrolled past
+    // (200vh container − 100vh viewport = 100vh actual scroll = 1× innerHeight)
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -145,7 +147,7 @@ export function Navbar() {
 
             {/* Login */}
             <a
-              href={`${APP_URL}/auth/login`}
+              href={`${APP_URL}/login`}
               className={`text-sm font-medium transition-colors duration-200 inline-flex items-center min-h-[44px] ${linkClass}`}
             >
               Login
@@ -153,7 +155,7 @@ export function Navbar() {
 
             {/* Get Started — inverted on transparent, solid on scrolled */}
             <a
-              href={`${APP_URL}/auth/login?intent=signup`}
+              href={ONBOARDING_URL}
               className={`inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full min-h-[40px] whitespace-nowrap active:scale-[0.98] transition-all duration-200 ${
                 solid
                   ? "bg-green-deep text-white hover:bg-green-muted"
@@ -213,7 +215,7 @@ export function Navbar() {
               { label: "Why Pathways", href: "/why-pathways",         external: false },
               { label: "Resources",    href: "/resources",            external: false },
               { label: "Pricing",      href: "/pricing",              external: false },
-              { label: "Login",        href: `${APP_URL}/auth/login`, external: true  },
+              { label: "Login",        href: `${APP_URL}/login`,      external: true  },
             ].map(({ label, href, external }) => (
               <a
                 key={label}
@@ -229,7 +231,7 @@ export function Navbar() {
 
           <div className="flex flex-col gap-4 mt-8">
             <a
-              href={`${APP_URL}/auth/login?intent=signup`}
+              href={ONBOARDING_URL}
               onClick={() => setMobileOpen(false)}
               className="w-full flex items-center justify-center gap-2 bg-white text-green-deep font-semibold text-base px-5 py-3.5 rounded-full min-h-[52px]"
             >

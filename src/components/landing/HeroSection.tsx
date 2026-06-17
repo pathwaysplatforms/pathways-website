@@ -1,141 +1,136 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import dynamic from "next/dynamic";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.example.com";
+const HeroGlobe = dynamic(() => import("./HeroGlobe"), { ssr: false });
 
-/**
- * Hero — landing-page-spec.md §1
- *
- * Full-viewport dark green section with topographic texture.
- * Video background can be added later by placing files at
- * /public/videos/hero-bg.webm and /public/videos/hero-bg.mp4.
- * Until then the bg-green-deep fallback is shown.
- *
- * Content animates in on page load (CSS, no JS) with staggered delays.
- */
+import { ONBOARDING_URL } from "@/lib/constants";
+
 export function HeroSection() {
+  const containerRef              = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    let rafId: number;
+
+    function update() {
+      const el = containerRef.current;
+      if (!el) return;
+      const scrolled = window.scrollY - el.offsetTop;
+      const max      = el.offsetHeight - window.innerHeight;
+      setScrollProgress(Math.min(1, Math.max(0, scrolled / max)));
+    }
+
+    function onScroll() {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(update);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    update();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
-    <section
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-green-deep"
-      aria-label="Hero"
-    >
-      {/* ── Background video (shows once files are placed in /public/videos/) ── */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-        aria-hidden="true"
-      >
-        <source src="/videos/hero-bg.webm" type="video/webm" />
-        <source src="/videos/hero-bg.mp4"  type="video/mp4"  />
-      </video>
-
-      {/* ── Green overlay (increases readability over video) ─────────────── */}
-      <div className="absolute inset-0 bg-green-deep/80" aria-hidden="true" />
-
-      {/* ── Topographic texture ───────────────────────────────────────────── */}
+    /*
+     * Outer div is 200vh tall — sticky viewport is 100vh, so the user
+     * scrolls 100vh (one viewport height) to complete the full animation.
+     */
+    <div ref={containerRef} style={{ height: "200vh", position: "relative" }}>
       <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none opacity-[0.12]"
-        style={{
-          backgroundImage:  "url('/textures/topo-lines.svg')",
-          backgroundSize:   "600px 600px",
-          backgroundRepeat: "repeat",
-        }}
-      />
-
-      {/* ── Hero content ─────────────────────────────────────────────────── */}
-      <div className="relative z-10 text-center px-5 max-w-3xl mx-auto w-full py-32 max-md:py-24">
-
-        {/* Eyebrow */}
-        <p
-          className="hero-entry text-sm font-semibold tracking-widest uppercase text-white/60 mb-6"
-          style={{ animationDelay: "0ms" }}
-        >
-          AI-Powered Immigration Guidance
-        </p>
-
-        {/* Headline */}
-        <h1
-          className="hero-entry font-display font-normal text-white text-6xl max-md:text-4xl leading-tight tracking-tight mb-6"
-          style={{ animationDelay: "80ms", lineHeight: "1.15" }}
-        >
-          Your pathway to a
-          <br className="max-md:hidden" />
-          {" "}new life, simplified.
-        </h1>
-
-        {/* Subtext */}
-        <p
-          className="hero-entry text-lg text-white/70 leading-relaxed mb-10 max-w-md mx-auto"
-          style={{ animationDelay: "160ms" }}
-        >
-          Tell us about yourself in any language. We match you to the right
-          visa, build your application, and guide you every step of the way.
-        </p>
-
-        {/* CTA buttons */}
-        <div
-          className="hero-entry flex items-center justify-center gap-4 max-md:flex-col max-md:w-full"
-          style={{ animationDelay: "240ms" }}
-        >
-          {/* Primary — inverted (white bg, green text) for contrast on dark hero */}
-          <a
-            href={`${APP_URL}/auth/login?intent=signup`}
-            className="
-              inline-flex items-center justify-center gap-2
-              bg-white text-green-deep
-              font-semibold text-base
-              px-8 py-4 rounded-full
-              min-h-[52px]
-              hover:bg-green-tint active:scale-[0.98]
-              transition-all duration-150
-              shadow-xl whitespace-nowrap
-              max-md:w-full
-            "
-          >
-            Find My Pathway <span aria-hidden="true">→</span>
-          </a>
-
-          {/* Secondary — outline */}
-          <a
-            href="#how-it-works"
-            className="
-              inline-flex items-center justify-center gap-2
-              bg-transparent text-white
-              border border-white/40
-              font-semibold text-base
-              px-7 py-3.5 rounded-full
-              min-h-[52px]
-              hover:bg-white/10 hover:border-white/70
-              active:scale-[0.98]
-              transition-all duration-150
-              whitespace-nowrap
-              max-md:w-full
-            "
-          >
-            See How It Works
-          </a>
+        className="sticky top-0 overflow-hidden"
+        style={{ height: "100vh" }}
+        aria-label="Hero"
+      >
+        {/* ── Three.js canvas (z-index: 0) ───────────────────────── */}
+        <div className="absolute inset-0" style={{ background: "#060e0a" }}>
+          <HeroGlobe scrollProgress={scrollProgress} />
         </div>
 
-        {/* Trust line */}
-        <p
-          className="hero-entry mt-8 text-sm text-white/50"
-          style={{ animationDelay: "320ms" }}
+        {/* ── Hero text (z-index: 10) ─────────────────────────────── */}
+        <div
+          className="relative flex flex-col items-start justify-center h-full px-10 max-md:px-5 max-w-[1200px] mx-auto"
+          style={{ zIndex: 10 }}
         >
-          Available in any language&ensp;·&ensp;50+ visa pathways&ensp;·&ensp;No lawyer needed
-        </p>
-      </div>
+          <div className="max-w-md max-md:max-w-full max-md:text-center max-md:mx-auto">
+            <p
+              className="hero-entry text-sm font-semibold tracking-widest uppercase text-white/60 mb-6"
+              style={{ animationDelay: "0ms" }}
+            >
+              AI-Powered Immigration Guidance
+            </p>
+            <h1
+              className="hero-entry font-display font-normal text-white text-6xl max-md:text-4xl leading-tight tracking-tight mb-6"
+              style={{ animationDelay: "80ms", lineHeight: "1.15" }}
+            >
+              Your pathway to a<br className="max-md:hidden" />
+              {" "}new life, simplified.
+            </h1>
+            <p
+              className="hero-entry text-lg text-white/70 leading-relaxed mb-10"
+              style={{ animationDelay: "160ms" }}
+            >
+              Tell us about yourself in any language. We match you to the
+              right visa, build your application, and guide you every step.
+            </p>
+            <div
+              className="hero-entry flex items-center gap-4 max-md:flex-col max-md:w-full"
+              style={{ animationDelay: "240ms" }}
+            >
+              <a
+                href={ONBOARDING_URL}
+                className="
+                  inline-flex items-center justify-center gap-2
+                  bg-white text-green-deep font-semibold text-base
+                  px-8 py-4 rounded-full min-h-[52px]
+                  hover:bg-green-tint active:scale-[0.98]
+                  transition-all duration-150 shadow-xl whitespace-nowrap
+                  max-md:w-full
+                "
+              >
+                Find My Pathway <span aria-hidden="true">→</span>
+              </a>
+              <a
+                href="#how-it-works"
+                className="
+                  inline-flex items-center justify-center gap-2
+                  bg-transparent text-white border border-white/40
+                  font-semibold text-base px-7 py-3.5 rounded-full min-h-[52px]
+                  hover:bg-white/10 hover:border-white/70
+                  active:scale-[0.98] transition-all duration-150
+                  whitespace-nowrap max-md:w-full
+                "
+              >
+                See How It Works
+              </a>
+            </div>
+            <p
+              className="hero-entry mt-8 text-sm text-white/50"
+              style={{ animationDelay: "320ms" }}
+            >
+              Available in any language&ensp;·&ensp;50+ visa pathways&ensp;·&ensp;No lawyer needed
+            </p>
+          </div>
+        </div>
 
-      {/* ── Scroll indicator ──────────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/40 animate-bounce"
-        style={{ animationDelay: "1600ms" }}
-      >
-        <ChevronDown size={24} />
+        {/* ── Scroll indicator ────────────────────────────────────── */}
+        <div
+          aria-hidden="true"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/40 animate-bounce"
+          style={{
+            zIndex: 10,
+            opacity: scrollProgress > 0.05 ? 0 : 1,
+            transition: "opacity 0.4s ease",
+          }}
+        >
+          <ChevronDown size={24} />
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

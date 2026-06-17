@@ -1,4 +1,4 @@
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.example.com";
+import { ONBOARDING_URL } from "@/lib/constants";
 
 export function CTASection() {
   return (
@@ -25,7 +25,7 @@ export function CTASection() {
         </p>
 
         <a
-          href={`${APP_URL}/auth/login?intent=signup`}
+          href={ONBOARDING_URL}
           className="
             inline-flex items-center justify-center gap-2
             bg-white text-green-deep

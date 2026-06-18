@@ -85,8 +85,8 @@ export function FAQSection() {
     <section className="py-24 bg-white max-md:py-14">
       <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
 
-        {/* Left-aligned heading */}
-        <div className="mb-12 max-md:mb-8">
+        {/* Centered heading */}
+        <div className="mb-12 max-md:mb-8 text-center">
           <p className="text-sm font-semibold tracking-widest uppercase text-green-deep mb-4">
             FAQ
           </p>
@@ -98,8 +98,8 @@ export function FAQSection() {
           </h2>
         </div>
 
-        {/* Accordion — max 680px, left-aligned */}
-        <div className="max-w-[680px]">
+        {/* Accordion — centered */}
+        <div className="max-w-[680px] mx-auto">
           {FAQS.map((item, i) => (
             <AccordionItem
               key={item.q}

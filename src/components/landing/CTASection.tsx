@@ -3,7 +3,7 @@ import { ONBOARDING_URL } from "@/lib/constants";
 export function CTASection() {
   return (
     <section
-      className="py-32 max-md:py-20 text-center bg-green-deep"
+      className="pt-32 max-md:pt-20 text-center bg-green-deep"
       style={{
         backgroundImage:     "url('/textures/topo-lines.svg')",
         backgroundSize:      "600px 600px",
@@ -11,7 +11,7 @@ export function CTASection() {
         backgroundBlendMode: "overlay",
       }}
     >
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      <div className="max-w-[1200px] mx-auto px-10 pb-24 max-md:px-5 max-md:pb-16">
         <h2
           className="font-display font-normal text-white text-5xl max-md:text-3xl mb-5 leading-tight tracking-tight"
           style={{ letterSpacing: "-0.02em" }}
@@ -45,6 +45,13 @@ export function CTASection() {
           Free to start&ensp;·&ensp;No credit card required&ensp;·&ensp;Takes 5 minutes
         </p>
       </div>
+
+      {/* Gradient blending CTA into footer */}
+      <div
+        aria-hidden="true"
+        className="h-32 w-full pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, transparent, #0a1a12)" }}
+      />
     </section>
   );
 }

@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { ONBOARDING_URL } from "@/lib/constants";
 
 const LINKS = {
   Product: [
     { label: "How It Works", href: "/#how-it-works" },
     { label: "Pathways",     href: "/#pathways"     },
-    { label: "Pricing",      href: "/pricing"        },
+    { label: "Explore Visas", href: "/visas"           },
     { label: "Why Pathways", href: "/why-pathways"   },
   ],
   Resources: [
@@ -27,52 +28,43 @@ const LINKS = {
 
 export function Footer() {
   return (
-    <footer
-      className="bg-[#0a1a12] overflow-hidden"
-      style={{
-        backgroundImage:     "url('/textures/topo-lines.svg')",
-        backgroundSize:      "600px 600px",
-        backgroundRepeat:    "repeat",
-        backgroundBlendMode: "soft-light",
-        backgroundPosition:  "120px 80px",
-      }}
-    >
+    <footer className="bg-black">
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
 
-      {/* ── Giant wordmark ──────────────────────────────────────── */}
-      <div className="px-6 max-md:px-4 pt-16 pb-2 select-none" aria-hidden="true">
-        <span
-          className="block text-white leading-[0.88] tracking-[-0.04em]"
-          style={{
-            fontFamily: "var(--pw-font-display)",
-            fontSize:   "clamp(3.5rem, 17vw, 21rem)",
-            opacity:    0.07,
-          }}
-        >
-          Pathways
-        </span>
-      </div>
-
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
-
-        {/* ── Links + tagline ─────────────────────────────────────── */}
-        <div className="border-t border-white/[0.07] pt-10 pb-12 grid grid-cols-5 gap-10 max-lg:grid-cols-2 max-md:grid-cols-1 max-md:gap-8">
-
-          {/* Tagline col */}
-          <div className="col-span-1 max-lg:col-span-2 max-md:col-span-1">
-            <Link href="/" aria-label="Pathways — home" className="inline-block mb-4">
+        {/* ── Top row: brand + CTA ────────────────────────────────── */}
+        <div className="flex items-center justify-between py-12 border-b border-white/[0.07] max-md:flex-col max-md:items-start max-md:gap-6">
+          <div>
+            <Link href="/" aria-label="Pathways — home" className="inline-block mb-3">
               <span
-                className="text-white/70 text-xl"
+                className="text-white/80 text-xl"
                 style={{ fontFamily: "var(--pw-font-display)" }}
               >
                 Pathways
               </span>
             </Link>
-            <p className="text-white/30 text-sm leading-relaxed max-w-[200px]">
+            <p className="text-white/30 text-sm leading-relaxed max-w-[220px]">
               AI-powered immigration guidance for everyone, in any language.
             </p>
           </div>
 
-          {/* Link columns */}
+          <Link
+            href={ONBOARDING_URL}
+            className="
+              inline-flex items-center gap-2
+              text-white/75 hover:text-white
+              font-medium text-sm
+              px-5 py-2.5 rounded-full
+              border border-white/15 hover:border-white/30
+              bg-white/5 hover:bg-white/10
+              transition-all duration-150
+            "
+          >
+            Find My Pathway →
+          </Link>
+        </div>
+
+        {/* ── Link columns ─────────────────────────────────────────── */}
+        <div className="py-12 grid grid-cols-4 gap-8 border-b border-white/[0.07] max-lg:grid-cols-2 max-md:grid-cols-2 max-md:gap-10">
           {Object.entries(LINKS).map(([group, items]) => (
             <div key={group}>
               <p className="text-white/25 text-[10px] font-semibold uppercase tracking-widest mb-5">
@@ -94,15 +86,44 @@ export function Footer() {
           ))}
         </div>
 
-        {/* ── Bottom bar ──────────────────────────────────────────── */}
-        <div className="border-t border-white/[0.05] py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        {/* ── Legal disclaimer ─────────────────────────────────────── */}
+        <div className="py-10 border-b border-white/[0.07]">
+          <p
+            className="text-[10px] font-semibold tracking-widest uppercase mb-5"
+            style={{ color: "rgba(134, 239, 172, 0.65)" }}
+          >
+            — Important Legal Information
+          </p>
+          <div className="space-y-3 text-xs text-white/30 leading-relaxed max-w-[860px]">
+            <p>
+              Pathways is a technology platform and is not a law firm. We do not provide legal
+              advice and do not represent applicants before Immigration, Refugees and Citizenship
+              Canada (IRCC) or any other government body. All applications are submitted directly
+              by the applicant through their own IRCC account.
+            </p>
+            <p>
+              Our platform is designed to help users prepare applications that are compliant with
+              current IRCC requirements. However, IRCC retains sole authority over all immigration
+              decisions, and Pathways makes no guarantee of approval outcomes.
+            </p>
+            <p>
+              For complex immigration matters or situations involving inadmissibility, refusals,
+              appeals, or criminal history, we recommend consulting a Regulated Canadian
+              Immigration Consultant (RCIC) or a licensed immigration lawyer.
+            </p>
+          </div>
+        </div>
+
+        {/* ── Bottom bar ───────────────────────────────────────────── */}
+        <div className="py-7 flex items-center justify-between gap-4 max-md:flex-col max-md:items-start">
           <p className="text-white/25 text-xs">
             © 2026 Pathways Technologies Inc. All rights reserved.
           </p>
-          <p className="text-white/15 text-xs max-w-xs leading-relaxed text-right max-md:text-left">
-            Pathways is not a law firm and does not provide legal advice.
-            Consult a licensed immigration consultant or lawyer.
-          </p>
+          <div className="flex items-center gap-5">
+            <Link href="/privacy"    className="text-white/20 hover:text-white/45 text-xs transition-colors">Privacy</Link>
+            <Link href="/terms"      className="text-white/20 hover:text-white/45 text-xs transition-colors">Terms of Service</Link>
+            <Link href="/disclaimer" className="text-white/20 hover:text-white/45 text-xs transition-colors">Disclaimer</Link>
+          </div>
         </div>
 
       </div>

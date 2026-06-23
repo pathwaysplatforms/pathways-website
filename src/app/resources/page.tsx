@@ -87,7 +87,7 @@ export default async function ResourcesPage({
 
       {/* ── Page header ─────────────────────────────────────────────── */}
       <section className="bg-white border-b border-grey-200 py-14 max-md:py-10">
-        <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+        <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
           <p className="text-sm font-semibold tracking-widest uppercase text-green-deep mb-4">
             Knowledge Base
           </p>
@@ -107,7 +107,7 @@ export default async function ResourcesPage({
 
       {/* ── Card grid ────────────────────────────────────────────────── */}
       <section className="py-16 bg-grey-100 max-md:py-10 min-h-[400px]">
-        <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+        <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
           <PostGrid
             initialPosts={initialPosts as Parameters<typeof PostGrid>[0]["initialPosts"]}
             activeType={activeTab}

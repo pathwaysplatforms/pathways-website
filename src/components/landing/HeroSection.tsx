@@ -54,7 +54,7 @@ export function HeroSection() {
 
         {/* ── Hero text (z-index: 10) ─────────────────────────────── */}
         <div
-          className="relative flex flex-col items-start justify-center h-full px-10 max-md:px-5 max-w-[1200px] mx-auto"
+          className="relative flex flex-col items-start justify-center h-full px-10 max-md:px-5 max-w-[1280px] mx-auto"
           style={{ zIndex: 10 }}
         >
           <div className="max-w-md max-md:max-w-full max-md:text-center max-md:mx-auto">

@@ -37,16 +37,27 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function PageHero() {
   return (
-    <section
-      className="bg-green-deep pt-[calc(72px+5rem)] pb-24 max-md:pt-[calc(60px+3rem)] max-md:pb-16 text-center overflow-hidden relative"
-      style={{
-        backgroundImage:     "url('/textures/topo-lines.svg')",
-        backgroundSize:      "600px 600px",
-        backgroundRepeat:    "repeat",
-        backgroundBlendMode: "overlay",
-      }}
-    >
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5 relative z-10">
+    <section className="bg-green-deep pt-[calc(72px+5rem)] pb-24 max-md:pt-[calc(60px+3rem)] max-md:pb-16 text-center overflow-hidden relative">
+
+      {/* ── Diagonal crosshatch pattern ─────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
+        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="wp-hatch" width="36" height="36" patternUnits="userSpaceOnUse">
+              <path d="M0 36 L36 0" stroke="white" strokeWidth="0.55" fill="none" opacity="0.13"/>
+              <path d="M0 0 L36 36" stroke="white" strokeWidth="0.55" fill="none" opacity="0.13"/>
+            </pattern>
+            <radialGradient id="wp-vignette" cx="50%" cy="50%" r="70%">
+              <stop offset="0%"   stopColor="black" stopOpacity="0"/>
+              <stop offset="100%" stopColor="black" stopOpacity="0.22"/>
+            </radialGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#wp-hatch)"/>
+          <rect width="100%" height="100%" fill="url(#wp-vignette)"/>
+        </svg>
+      </div>
+
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5 relative z-10">
         <p className="text-sm font-semibold tracking-widest uppercase text-white/50 mb-5">
           Why Pathways
         </p>
@@ -94,7 +105,7 @@ const PROBLEMS = [
 function ProblemSection() {
   return (
     <section className="py-24 bg-white max-md:py-14">
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
         <div className="max-w-[620px] mb-16 max-md:mb-10">
           <SectionLabel>The Problem</SectionLabel>
           <h2
@@ -147,7 +158,7 @@ const SOLUTIONS = [
 function SolutionSection() {
   return (
     <section className="py-24 bg-green-tint max-md:py-14">
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
         <div className="mb-16 max-md:mb-10">
           <SectionLabel>Our Approach</SectionLabel>
           <h2
@@ -215,7 +226,7 @@ function Check({ value }: { value: CheckValue }) {
 function ComparisonSection() {
   return (
     <section className="py-24 bg-white max-md:py-14">
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
         <div className="mb-14 max-md:mb-10">
           <SectionLabel>How We Compare</SectionLabel>
           <h2
@@ -312,7 +323,7 @@ function PrinciplesSection() {
         backgroundBlendMode: "overlay",
       }}
     >
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
         <div className="mb-16 max-md:mb-10">
           <p className="text-sm font-semibold tracking-widest uppercase text-white/50 mb-4">
             What We Believe
@@ -364,7 +375,7 @@ function LawyerSection() {
 
   return (
     <section className="py-24 bg-white max-md:py-14">
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
         <div className="max-w-[620px] mb-16 max-md:mb-10">
           <SectionLabel>Know When to Get Help</SectionLabel>
           <h2

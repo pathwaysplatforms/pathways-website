@@ -24,7 +24,7 @@ const FAQS: FAQItem[] = [
   },
   {
     q: "How much does Pathways cost?",
-    a: "We offer a free tier that gives you pathway matching and your personalised checklist. Our paid plans unlock document generation, direct application support, and priority guidance. See our Pricing page for full details.",
+    a: "Pathway matching and your personalised checklist are always free. Paid plans unlock document generation, direct application support, and priority guidance — at a fraction of what a lawyer charges.",
   },
   {
     q: "Which countries do you support?",
@@ -83,7 +83,7 @@ export function FAQSection() {
 
   return (
     <section className="py-24 bg-white max-md:py-14">
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
 
         {/* Centered heading */}
         <div className="mb-12 max-md:mb-8 text-center">

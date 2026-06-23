@@ -2,111 +2,25 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import {
-  CSS2DRenderer,
-  CSS2DObject,
-} from "three/examples/jsm/renderers/CSS2DRenderer";
-
-// ─── GLSL Shaders ─────────────────────────────────────────────────────────────
-
-const GLOBE_VERT = /* glsl */`
-precision highp float;
-
-uniform float uTime;
-uniform float uPulse;
-
-varying float vElevation;
-varying vec3  vNormal;
-
-float hash(float n) { return fract(sin(n) * 43758.5453); }
-float noise3(vec3 x) {
-  vec3 i = floor(x), f = fract(x);
-  f = f * f * (3.0 - 2.0 * f);
-  float n = i.x + i.y * 57.0 + 113.0 * i.z;
-  return mix(
-    mix(mix(hash(n),       hash(n+1.0),   f.x), mix(hash(n+57.0),  hash(n+58.0),  f.x), f.y),
-    mix(mix(hash(n+113.0), hash(n+114.0), f.x), mix(hash(n+170.0), hash(n+171.0), f.x), f.y),
-    f.z);
-}
-float fbm(vec3 p) {
-  return 0.500 * noise3(p)
-       + 0.250 * noise3(p * 2.1)
-       + 0.125 * noise3(p * 4.2);
-}
-
-void main() {
-  float n    = fbm(position * 2.5 + uTime * 0.04);
-  float disp = (n - 0.5) * 0.06 * uPulse;
-  vElevation = disp;
-  vNormal    = normal;
-
-  vec3 sPos = position + normal * disp;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(sPos, 1.0);
-}
-`;
-
-const GLOBE_FRAG = /* glsl */`
-precision highp float;
-
-uniform vec3  uColorLow;
-uniform vec3  uColorMid;
-uniform vec3  uColorHigh;
-
-varying float vElevation;
-varying vec3  vNormal;
-
-void main() {
-  float e   = clamp(vElevation * 14.0 + 0.5, 0.0, 1.0);
-  vec3  col = e < 0.5
-    ? mix(uColorLow,  uColorMid,  e * 2.0)
-    : mix(uColorMid,  uColorHigh, (e - 0.5) * 2.0);
-
-  vec3  L    = normalize(vec3(1.5, 2.0, 1.5));
-  float diff = max(dot(normalize(vNormal), L), 0.0) * 0.55 + 0.45;
-  col *= diff;
-  gl_FragColor = vec4(col, 1.0);
-}
-`;
-
-const ATM_VERT = /* glsl */`
-precision highp float;
-varying vec3 vWorldNormal;
-varying vec3 vWorldPos;
-
-void main() {
-  vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
-  vWorldPos    = (modelMatrix * vec4(position, 1.0)).xyz;
-  gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}
-`;
-
-const ATM_FRAG = /* glsl */`
-precision highp float;
-uniform vec3  uColor;
-uniform float uIntensity;
-
-varying vec3 vWorldNormal;
-varying vec3 vWorldPos;
-
-void main() {
-  vec3  V       = normalize(cameraPosition - vWorldPos);
-  float fresnel = pow(1.0 - abs(dot(vWorldNormal, V)), 2.5);
-  gl_FragColor  = vec4(uColor, fresnel * uIntensity);
-}
-`;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 interface City {
-  name: string;
-  lat:  number;
-  lon:  number;
+  name:      string;
+  lat:       number;
+  lon:       number;
+  canadian?: boolean;
 }
 
 const CITIES: City[] = [
-  { name: "Toronto",     lat:  43.65, lon:  -79.38 },
-  { name: "Vancouver",   lat:  49.28, lon: -123.12 },
-  { name: "Montréal",    lat:  45.50, lon:  -73.57 },
+  { name: "Toronto",     lat:  43.65, lon:  -79.38, canadian: true },
+  { name: "Vancouver",   lat:  49.28, lon: -123.12, canadian: true },
+  { name: "Montréal",    lat:  45.50, lon:  -73.57, canadian: true },
+  { name: "Calgary",     lat:  51.04, lon: -114.07, canadian: true },
+  { name: "Ottawa",      lat:  45.42, lon:  -75.69, canadian: true },
+  { name: "Edmonton",    lat:  53.55, lon: -113.49, canadian: true },
+  { name: "Québec City", lat:  46.81, lon:  -71.21, canadian: true },
+  { name: "Halifax",     lat:  44.65, lon:  -63.57, canadian: true },
   { name: "London",      lat:  51.51, lon:   -0.13 },
   { name: "Dubai",       lat:  25.20, lon:   55.27 },
   { name: "Mumbai",      lat:  19.08, lon:   72.88 },
@@ -114,11 +28,6 @@ const CITIES: City[] = [
   { name: "Lagos",       lat:   6.52, lon:    3.38 },
   { name: "São Paulo",   lat: -23.55, lon:  -46.63 },
   { name: "Sydney",      lat: -33.87, lon:  151.21 },
-  { name: "Calgary",     lat:  51.04, lon: -114.07 },
-  { name: "Ottawa",      lat:  45.42, lon:  -75.69 },
-  { name: "Edmonton",    lat:  53.55, lon: -113.49 },
-  { name: "Québec City", lat:  46.81, lon:  -71.21 },
-  { name: "Halifax",     lat:  44.65, lon:  -63.57 },
 ];
 
 const RING_DEFS = [
@@ -171,26 +80,22 @@ interface RingState {
 }
 
 interface MarkerState {
-  dot:     THREE.Mesh;
-  ring:    THREE.Mesh;
-  ringMat: THREE.MeshBasicMaterial;
-  label:   CSS2DObject;
-  labelEl: HTMLElement;
-  phase:   number;
+  dot:        THREE.Mesh;
+  ring:       THREE.Mesh;
+  ringMat:    THREE.MeshBasicMaterial;
+  phase:      number;
+  isCanadian: boolean;
 }
 
 interface GLState {
-  renderer:      THREE.WebGLRenderer;
-  labelRenderer: CSS2DRenderer;
-  scene:         THREE.Scene;
-  camera:        THREE.PerspectiveCamera;
-  clock:         THREE.Clock;
-  globeGroup:    THREE.Group;
-  globeMat:      THREE.ShaderMaterial;
-  atmMat:        THREE.ShaderMaterial;
-  rings:         RingState[];
-  markers:       MarkerState[];
-  autoRotY:      number;
+  renderer:   THREE.WebGLRenderer;
+  scene:      THREE.Scene;
+  camera:     THREE.PerspectiveCamera;
+  clock:      THREE.Clock;
+  globeGroup: THREE.Group;
+  rings:      RingState[];
+  markers:    MarkerState[];
+  autoRotY:   number;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -222,61 +127,79 @@ export default function HeroGlobe({ scrollProgress }: HeroGlobeProps) {
 
     // ── Camera ───────────────────────────────────────────────────────
     const camera = new THREE.PerspectiveCamera(50, W / H, 0.01, 100);
-    camera.position.set(isMobile ? 0 : -0.45, 0, 2.8);
+    camera.position.set(isMobile ? 0 : -0.3, 0, 2.8);
     camera.lookAt(0, 0, 0);
 
-    // ── Renderers ────────────────────────────────────────────────────
+    // ── Renderer ─────────────────────────────────────────────────────
     const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(W, H);
     Object.assign(renderer.domElement.style, { position: "absolute", inset: "0", display: "block" });
     mountRef.current.appendChild(renderer.domElement);
 
-    const labelRenderer = new CSS2DRenderer();
-    labelRenderer.setSize(W, H);
-    Object.assign(labelRenderer.domElement.style, {
-      position: "absolute", top: "0", left: "0",
-      pointerEvents: "none", overflow: "hidden",
-    });
-    mountRef.current.appendChild(labelRenderer.domElement);
-
     // ── Globe group ──────────────────────────────────────────────────
     const globeGroup = new THREE.Group();
-    if (!isMobile) globeGroup.position.x = 0.45;
+    if (!isMobile) globeGroup.position.x = 0.85;
+    // R=0.3 puts lon≈-107° (central-western Canada) front-and-centre
+    globeGroup.rotation.y = 0.3;
     scene.add(globeGroup);
 
-    // ── Globe mesh ───────────────────────────────────────────────────
+    // ── Glow halo behind the globe (desktop only) ─────────────────────
+    // A sprite always faces the camera, giving a clean radial glow.
+    let glowTex: THREE.CanvasTexture | null = null;
+    let glowMat: THREE.SpriteMaterial   | null = null;
+    if (!isMobile) {
+      const gc2  = document.createElement("canvas");
+      gc2.width  = gc2.height = 256;
+      const gctx = gc2.getContext("2d")!;
+      const gr   = gctx.createRadialGradient(128, 128, 8, 128, 128, 128);
+      gr.addColorStop(0.0, "rgba(255, 255, 255, 0.32)");
+      gr.addColorStop(0.35, "rgba(220, 240, 235, 0.12)");
+      gr.addColorStop(1.0, "rgba(0, 0, 0, 0)");
+      gctx.fillStyle = gr;
+      gctx.fillRect(0, 0, 256, 256);
+      glowTex = new THREE.CanvasTexture(gc2);
+      glowMat = new THREE.SpriteMaterial({
+        map:         glowTex,
+        blending:    THREE.AdditiveBlending,
+        transparent: true,
+        depthWrite:  false,
+      });
+      const glowSprite = new THREE.Sprite(glowMat);
+      glowSprite.scale.setScalar(5.0);
+      glowSprite.position.set(0.85, 0, 0); // world position matches globeGroup
+      scene.add(glowSprite);
+    }
+
+    // ── Load NASA textures ────────────────────────────────────────────
+    const loader  = new THREE.TextureLoader();
+    const dayTex  = loader.load("https://raw.githubusercontent.com/turban/webgl-earth/master/images/2_no_clouds_4k.jpg");
+    const bumpTex = loader.load("https://raw.githubusercontent.com/turban/webgl-earth/master/images/elev_bump_4k.jpg");
+    const specTex = loader.load("https://raw.githubusercontent.com/turban/webgl-earth/master/images/water_4k.png");
+
+    // ── Globe mesh ────────────────────────────────────────────────────
     const globeGeo = new THREE.SphereGeometry(1, segs, segs);
-    const globeMat = new THREE.ShaderMaterial({
-      vertexShader:   GLOBE_VERT,
-      fragmentShader: GLOBE_FRAG,
-      uniforms: {
-        uTime:      { value: 0 },
-        uPulse:     { value: 1 },
-        uColorLow:  { value: new THREE.Color(0x0d4a3a) },
-        uColorMid:  { value: new THREE.Color(0x1c3d32) },
-        uColorHigh: { value: new THREE.Color(0x2a5c4e) },
-      },
+    const globeMat = new THREE.MeshPhongMaterial({
+      map:         dayTex,
+      bumpMap:     bumpTex,
+      bumpScale:   0.05,
+      specularMap: specTex,
+      specular:    new THREE.Color(0x333333),
+      shininess:   15,
+      color:       new THREE.Color(0x1a3a2a),
     });
     globeGroup.add(new THREE.Mesh(globeGeo, globeMat));
 
-    // ── Atmosphere (fresnel glow) ────────────────────────────────────
-    const atmGeo = new THREE.SphereGeometry(1.15, 32, 32);
-    const atmMat = new THREE.ShaderMaterial({
-      vertexShader:   ATM_VERT,
-      fragmentShader: ATM_FRAG,
-      uniforms: {
-        uColor:     { value: new THREE.Color(0x0d4a3a) },
-        uIntensity: { value: 0.9 },
-      },
-      transparent: true,
-      blending:    THREE.AdditiveBlending,
-      depthWrite:  false,
-      side:        THREE.BackSide,
-    });
-    globeGroup.add(new THREE.Mesh(atmGeo, atmMat));
+    // ── Lighting ─────────────────────────────────────────────────────
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    sunLight.position.set(5, 3, 5);
+    scene.add(sunLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.15));
+    const fillLight = new THREE.PointLight(0x1a3a2a, 0.1);
+    fillLight.position.set(-10, -5, -5);
+    scene.add(fillLight);
 
-    // ── Floating organic rings (desktop only) ────────────────────────
+    // ── Floating organic rings (desktop only) ─────────────────────────
     const rings: RingState[] = [];
     if (!isMobile) {
       RING_DEFS.forEach((def) => {
@@ -298,11 +221,17 @@ export default function HeroGlobe({ scrollProgress }: HeroGlobeProps) {
     // ── City markers ─────────────────────────────────────────────────
     const markers: MarkerState[] = [];
     CITIES.forEach((city, idx) => {
-      const pos = latLonToVec3(city.lat, city.lon, 1.0);
+      const pos        = latLonToVec3(city.lat, city.lon, 1.0);
+      const isCanadian = city.canadian === true;
 
       const dotGeo = new THREE.CircleGeometry(0.016, 8);
-      const dotMat = new THREE.MeshBasicMaterial({ color: 0xe8f0ee, depthWrite: false });
-      const dot    = new THREE.Mesh(dotGeo, dotMat);
+      const dotMat = new THREE.MeshBasicMaterial({
+        color:       0xffffff,
+        transparent: true,
+        opacity:     isCanadian ? 1.0 : 0.3,
+        depthWrite:  false,
+      });
+      const dot = new THREE.Mesh(dotGeo, dotMat);
       dot.position.copy(pos);
       dot.lookAt(0, 0, 0);
       dot.translateZ(0.015);
@@ -310,8 +239,12 @@ export default function HeroGlobe({ scrollProgress }: HeroGlobeProps) {
 
       const ringGeo = new THREE.RingGeometry(0.020, 0.036, 16);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: 0x2a5c4e, transparent: true, opacity: 0,
-        side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending,
+        color:       isCanadian ? 0xffffff : 0x888888,
+        transparent: true,
+        opacity:     0,
+        side:        THREE.DoubleSide,
+        depthWrite:  false,
+        blending:    THREE.AdditiveBlending,
       });
       const ring = new THREE.Mesh(ringGeo, ringMat);
       ring.position.copy(pos);
@@ -319,35 +252,16 @@ export default function HeroGlobe({ scrollProgress }: HeroGlobeProps) {
       ring.translateZ(0.020);
       globeGroup.add(ring);
 
-      const el = document.createElement("div");
-      el.textContent = city.name;
-      el.style.cssText = [
-        "font-family:Inter,system-ui,sans-serif",
-        "font-size:11px",
-        "color:rgba(255,255,255,0.6)",
-        "white-space:nowrap",
-        "pointer-events:none",
-        "letter-spacing:0.04em",
-        "user-select:none",
-        "text-shadow:0 1px 4px rgba(0,0,0,0.8)",
-        "padding-left:9px",
-        "opacity:0",
-      ].join(";");
-      el.dataset.idx = String(idx);
-      const label = new CSS2DObject(el);
-      label.position.copy(pos.clone().multiplyScalar(1.1));
-      globeGroup.add(label);
-
-      markers.push({ dot, ring, ringMat, label, labelEl: el, phase: idx * 0.38 });
+      markers.push({ dot, ring, ringMat, phase: idx * 0.38, isCanadian });
     });
 
     // ── Store GL state ────────────────────────────────────────────────
     glRef.current = {
-      renderer, labelRenderer, scene, camera,
+      renderer, scene, camera,
       clock: new THREE.Clock(),
-      globeGroup, globeMat, atmMat,
+      globeGroup,
       rings, markers,
-      autoRotY: 0,
+      autoRotY: 0.3,
     };
 
     // ── Animation loop ────────────────────────────────────────────────
@@ -359,63 +273,37 @@ export default function HeroGlobe({ scrollProgress }: HeroGlobeProps) {
       const sp      = spRef.current;
       const t       = gl.clock.getElapsedTime();
       const easedSP = easeInOutCubic(sp);
+      const zoomSP  = sp * (0.5 + sp * 0.5);
 
-      // Globe surface noise pulse
-      const pulse = reduced ? 1 : 0.7 + 0.3 * Math.sin((t / 8) * Math.PI * 2);
-      gl.globeMat.uniforms.uTime.value  = reduced ? 0 : t;
-      gl.globeMat.uniforms.uPulse.value = pulse;
-
-      // zoomSP: starts at 50% speed immediately (no dead zone) and
-      // accelerates to 1.5× by the end — responsive from first scroll tick,
-      // still builds momentum. easedSP (cubic in-out) keeps tilt + pan smooth.
-      const zoomSP = sp * (0.5 + sp * 0.5);
-
-      // Y-rotation slows to a stop (linear with scroll feels most natural)
-      if (!reduced) gl.autoRotY += 0.0008 * (1 - sp);
+      if (!reduced) gl.autoRotY += 0.00025 * (1 - sp);
       gl.globeGroup.rotation.y = gl.autoRotY;
+      gl.globeGroup.rotation.x = 0.45 + easedSP * 0.25;
 
-      // X-tilt: 0 → 0.25 rad
-      gl.globeGroup.rotation.x = easedSP * 0.25;
-
-      // Camera: X stays offset left (globe stays on right half); Z driven by
-      // zoomSP for the accelerating feel; small Y lift follows the tilt.
       camera.position.set(
-        isMobile ? 0 : -0.45,
-        zoomSP * 0.15,                  // 0 → 0.15 upward
-        2.8 - zoomSP * 1.8,            // Z: 2.8 → 1.0
+        isMobile ? 0 : -0.3,
+        zoomSP * 0.15,
+        2.8 - zoomSP * 1.8,
       );
-
-      // Look-at pans left+up on the smooth curve so the target location
-      // arrives at screen center as the zoom accelerates into it.
       camera.lookAt(
-        isMobile ? 0 : -0.15 * easedSP, // 0 → -0.15 (globe's left face)
-        0.3 * easedSP,                   // 0 → 0.30  (northern hemisphere)
+        isMobile ? 0 : -0.15 * easedSP,
+        0.3 * easedSP,
         0,
       );
 
-      // Rings: fade out over sp 0.0 → 0.3
       const ringFade = 1 - Math.min(1, sp / 0.3);
       gl.rings.forEach((r, ri) => {
         if (!reduced) r.group.rotation.y += r.speed;
         r.mat.opacity = ringFade * RING_DEFS[ri].opacity;
       });
 
-      // Atmosphere intensity constant
-      gl.atmMat.uniforms.uIntensity.value = 0.9;
-
-      // City marker pulse rings + label flutter
-      gl.markers.forEach((m, mi) => {
-        const pulse2 = ((t * 0.55 + m.phase) % (Math.PI * 2)) / (Math.PI * 2);
-        m.ring.scale.setScalar(1 + pulse2 * 1.5);
-        m.ringMat.opacity = (1 - pulse2) * 0.8;
-        const flutter = reduced
-          ? 0.6
-          : 0.42 + 0.28 * Math.sin(t * 0.4 + mi * 1.3);
-        m.labelEl.style.opacity = String(Math.max(0, flutter));
+      gl.markers.forEach((m) => {
+        const p2             = ((t * 0.55 + m.phase) % (Math.PI * 2)) / (Math.PI * 2);
+        const maxRingOpacity = m.isCanadian ? 0.8 : 0.24;
+        m.ring.scale.setScalar(1 + p2 * 1.5);
+        m.ringMat.opacity = (1 - p2) * maxRingOpacity;
       });
 
       gl.renderer.render(gl.scene, gl.camera);
-      gl.labelRenderer.render(gl.scene, gl.camera);
     }
 
     rafRef.current = requestAnimationFrame(frame);
@@ -428,7 +316,6 @@ export default function HeroGlobe({ scrollProgress }: HeroGlobeProps) {
       glRef.current.camera.aspect = w / h;
       glRef.current.camera.updateProjectionMatrix();
       glRef.current.renderer.setSize(w, h);
-      glRef.current.labelRenderer.setSize(w, h);
     }
     window.addEventListener("resize", onResize);
 
@@ -439,14 +326,13 @@ export default function HeroGlobe({ scrollProgress }: HeroGlobeProps) {
 
       globeGeo.dispose();
       globeMat.dispose();
-      atmGeo.dispose();
-      atmMat.dispose();
+      glowTex?.dispose();
+      glowMat?.dispose();
+      [dayTex, bumpTex, specTex].forEach((tx) => tx.dispose());
 
       rings.forEach((r) => {
-        r.group.children.forEach((c) => {
-          (c as THREE.Line).geometry.dispose();
-          r.mat.dispose();
-        });
+        r.group.children.forEach((c) => (c as THREE.Line).geometry.dispose());
+        r.mat.dispose();
       });
 
       markers.forEach((m) => {
@@ -458,7 +344,6 @@ export default function HeroGlobe({ scrollProgress }: HeroGlobeProps) {
 
       renderer.dispose();
       renderer.domElement.parentNode?.removeChild(renderer.domElement);
-      labelRenderer.domElement.parentNode?.removeChild(labelRenderer.domElement);
       glRef.current = null;
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

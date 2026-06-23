@@ -279,7 +279,7 @@ export default async function PostPage({
       {/* ── More to read ────────────────────────────────────────────── */}
       {relatedWithCovers.length > 0 && (
         <section className="py-16 max-md:py-10 bg-grey-100 border-t border-grey-200">
-          <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+          <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
             <h2
               className="font-display font-normal text-3xl max-md:text-2xl text-grey-900 mb-10 leading-tight tracking-tight"
               style={{ letterSpacing: "-0.01em" }}

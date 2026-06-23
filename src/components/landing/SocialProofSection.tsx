@@ -89,9 +89,9 @@ export function SocialProofSection() {
     <section
       ref={ref}
       aria-label="Social proof statistics"
-      className="bg-green-light border-y border-green-deep/10 py-12 max-md:py-8"
+      className="bg-white border-y border-grey-200 py-24 max-md:py-14"
     >
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      <div className="max-w-[1280px] mx-auto px-10 max-md:px-5">
 
         {/* Desktop: flex row with pipe dividers — Mobile: 2×2 grid */}
         <div className="flex justify-center items-center max-md:grid max-md:grid-cols-2 max-md:gap-y-8">
@@ -104,7 +104,7 @@ export function SocialProofSection() {
               `}
             >
               <p
-                className="font-display text-5xl max-md:text-4xl font-normal tracking-tight text-grey-900 mb-2"
+                className="font-display text-6xl max-md:text-5xl font-normal tracking-tight text-grey-900 mb-2"
                 style={{ letterSpacing: "-0.02em" }}
                 aria-live={started ? "polite" : undefined}
               >

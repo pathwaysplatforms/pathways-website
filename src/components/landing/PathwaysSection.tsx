@@ -1,156 +1,181 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ONBOARDING_URL } from "@/lib/constants";
+
+const CanadaGlobe = dynamic(() => import("./CanadaGlobe"), { ssr: false });
 
 const CANADA_VISAS = ["Express Entry", "Provincial Nominee", "Family Sponsorship", "Study Permit"];
 
 const UPCOMING = [
   { country: "United Kingdom", flag: "🇬🇧", subtitle: "Skilled Worker · Graduate Visa · Innovator Founder" },
-  { country: "Australia",      flag: "🇦🇺", subtitle: "SkillSelect · Employer Sponsored · Student Visa"   },
-  { country: "Germany",        flag: "🇩🇪", subtitle: "EU Blue Card · Opportunity Card · Skilled Worker"  },
+  { country: "Australia",      flag: "🇦🇺", subtitle: "SkillSelect · Employer Sponsored · Student Visa"    },
+  { country: "Germany",        flag: "🇩🇪", subtitle: "EU Blue Card · Opportunity Card · Skilled Worker"   },
 ];
 
 export function PathwaysSection() {
   return (
     <section
       id="pathways"
-      className="py-28 max-md:py-16"
-      style={{
-        background: "#E8F0EE",
-        // Subtle dot grid — different from the topo-line pattern used elsewhere
-        backgroundImage:
-          "radial-gradient(rgba(13,74,58,0.18) 1.5px, transparent 1.5px)",
-        backgroundSize: "22px 22px",
-      }}
+      className="bg-white overflow-hidden"
     >
-      <div className="max-w-[1200px] mx-auto px-10 max-md:px-5">
+      {/* Flex: globe takes left half of viewport, content on right */}
+      <div className="flex items-center max-md:flex-col">
 
-        {/* Heading */}
-        <div className="mb-10">
-          <p className="text-xs font-semibold tracking-widest uppercase text-green-deep/60 mb-4">
+        {/* ── Left: Globe — 50vw wide, fixed aspect so canvas is never distorted ── */}
+        <div
+          className="relative flex-shrink-0 max-md:w-full max-md:h-[320px]"
+          style={{ width: "50vw", aspectRatio: "1 / 1.1" }}
+        >
+          <CanadaGlobe />
+        </div>
+
+        {/* ── Right: Content ───────────────────────────────────────── */}
+        <div
+          className="flex-1 flex flex-col justify-center py-20 pr-[max(40px,calc(50vw-600px))] pl-14 max-lg:pl-10 max-md:px-5 max-md:py-12"
+        >
+
+          {/* Eyebrow */}
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-green-deep/50 mb-4">
             Where We Can Take You
           </p>
+
+          {/* Headline */}
           <h2
-            className="font-display font-normal text-5xl max-md:text-3xl text-green-deep leading-tight mb-3"
+            className="font-display font-normal text-5xl max-lg:text-4xl text-grey-900 leading-tight mb-4"
             style={{ letterSpacing: "-0.02em" }}
           >
             Start your journey.
           </h2>
-          <p className="text-green-deep/60 text-lg leading-relaxed">
+
+          {/* Subtitle */}
+          <p className="text-grey-500 text-base leading-relaxed mb-8 max-w-[360px]">
             Launching with Canada — more destinations coming fast.
           </p>
-        </div>
 
-        {/* ── Canada hero card ─────────────────────────────────── */}
-        <div
-          className="rounded-3xl overflow-hidden mb-3"
-          style={{
-            background: "#0a3526",
-            backgroundImage:
-              "radial-gradient(rgba(255,255,255,0.04) 1.5px, transparent 1.5px)",
-            backgroundSize: "22px 22px",
-          }}
-        >
-          <div className="grid grid-cols-[1fr_auto] max-md:grid-cols-1">
+          {/* ── Canada info block ─────────────────────────────────── */}
+          <div className="rounded-2xl p-7 mb-6 relative" style={{ background: "#F2F6F5" }}>
 
-            {/* Left: content */}
-            <div className="p-10 max-md:p-8">
-              <div className="flex items-center gap-3 mb-7">
-                <span className="text-6xl max-md:text-5xl leading-none" role="img" aria-label="Canada">
-                  🇨🇦
-                </span>
-                <div>
-                  <span className="inline-block text-[10px] font-semibold tracking-widest uppercase text-emerald-400/75 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full mb-1">
-                    Available Now
-                  </span>
-                  <h3
-                    className="text-white font-display font-normal text-4xl max-md:text-3xl leading-none"
-                    style={{ letterSpacing: "-0.02em" }}
-                  >
-                    Canada
-                  </h3>
-                </div>
-              </div>
+            {/* Available Now badge — top-right corner */}
+            <span
+              className="absolute top-4 right-4 text-[9px] font-semibold tracking-widest uppercase px-2.5 py-0.5 rounded-full"
+              style={{
+                color:      "#166534",
+                background: "#dcfce7",
+                border:     "1px solid #bbf7d0",
+              }}
+            >
+              Available Now
+            </span>
 
-              <p className="text-white/60 text-base leading-relaxed mb-7 max-w-md">
-                One of the world&apos;s most immigration-friendly countries — with clear,
-                structured pathways for skilled workers, families, and students.
-              </p>
-
-              {/* Visa chips */}
-              <div className="flex flex-wrap gap-2 mb-8">
-                {CANADA_VISAS.map((type) => (
-                  <span
-                    key={type}
-                    className="text-xs font-medium text-white/75 border border-white/20 px-3 py-1.5 rounded-full"
-                  >
-                    {type}
-                  </span>
-                ))}
-              </div>
-
-              <Link
-                href={ONBOARDING_URL}
-                className="
-                  inline-flex items-center gap-2
-                  bg-white text-green-deep font-semibold text-sm
-                  px-6 py-3 rounded-full
-                  hover:bg-green-tint active:scale-[0.98]
-                  transition-all duration-150 shadow-lg
-                "
+            {/* Flag + name */}
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-4xl leading-none flex-shrink-0" role="img" aria-label="Canada flag">
+                🇨🇦
+              </span>
+              <h3
+                className="font-display font-normal text-3xl leading-none"
+                style={{ letterSpacing: "-0.02em", color: "#0D4A3A" }}
               >
-                Find my pathway →
-              </Link>
+                Canada
+              </h3>
             </div>
 
-            {/* Right: stats — desktop only */}
-            <div className="p-10 flex flex-col justify-center gap-8 border-l border-white/10 max-md:hidden min-w-[220px]">
+            {/* Description */}
+            <p className="text-sm leading-relaxed mb-5" style={{ color: "rgba(13,74,58,0.6)" }}>
+              One of the world&apos;s most immigration-friendly countries — with clear,
+              structured pathways for skilled workers, families, and students.
+            </p>
+
+            {/* Visa pills */}
+            <div className="flex flex-wrap gap-1.5 mb-6">
+              {CANADA_VISAS.map((type) => (
+                <span
+                  key={type}
+                  className="text-[11px] font-medium px-3 py-1.5 rounded-full"
+                  style={{
+                    color:   "rgba(13,74,58,0.75)",
+                    border:  "1px solid rgba(13,74,58,0.2)",
+                  }}
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+
+            {/* Stats */}
+            <div
+              className="grid grid-cols-3 gap-3 pt-5 mb-6"
+              style={{ borderTop: "1px solid rgba(13,74,58,0.1)" }}
+            >
               {[
-                { value: "400K+", label: "newcomers per year"   },
-                { value: "80+",   label: "immigration pathways" },
-                { value: "#1",    label: "top-rated destination"},
+                { value: "400K+", label: "newcomers / year"   },
+                { value: "80+",   label: "pathways"           },
+                { value: "#1",    label: "top destination"    },
               ].map(({ value, label }) => (
-                <div key={label} className="text-right">
+                <div key={label}>
                   <p
-                    className="text-white font-display font-normal text-4xl leading-none mb-1"
-                    style={{ letterSpacing: "-0.02em" }}
+                    className="font-display font-normal text-2xl leading-none mb-1"
+                    style={{ letterSpacing: "-0.02em", color: "#0D4A3A" }}
                   >
                     {value}
                   </p>
-                  <p className="text-white/40 text-xs">{label}</p>
+                  <p className="text-xs" style={{ color: "rgba(13,74,58,0.4)" }}>{label}</p>
                 </div>
               ))}
             </div>
 
-          </div>
-        </div>
-
-        {/* ── Coming-soon strip ────────────────────────────────── */}
-        <div className="grid grid-cols-3 max-md:grid-cols-1 gap-3">
-          {UPCOMING.map(({ country, flag, subtitle }) => (
-            <div
-              key={country}
-              className="rounded-2xl px-5 py-4 flex items-center gap-4 bg-white/70 border border-green-deep/10 group"
+            {/* CTA */}
+            <Link
+              href={ONBOARDING_URL}
+              className="
+                inline-flex items-center gap-2
+                text-white font-semibold text-sm
+                px-6 py-3 rounded-full
+                hover:opacity-90 active:scale-[0.98]
+                transition-all duration-150
+              "
+              style={{ background: "#0D4A3A" }}
             >
-              <span
-                className="text-3xl flex-shrink-0 opacity-60 group-hover:opacity-80 transition-opacity"
-                role="img"
-                aria-label={country}
-              >
-                {flag}
-              </span>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-green-deep/75 font-medium text-sm">{country}</p>
-                  <span className="text-[9px] font-semibold tracking-widest uppercase text-green-deep/35 border border-green-deep/15 px-1.5 py-0.5 rounded-full flex-shrink-0">
+              Find my pathway →
+            </Link>
+          </div>
+
+          {/* ── Coming soon — thin vertical list ─────────────────── */}
+          <div>
+            <p className="text-[9px] font-semibold tracking-widest uppercase mb-3" style={{ color: "rgba(0,0,0,0.25)" }}>
+              Coming Soon
+            </p>
+            <div style={{ borderTop: "1px solid #f0f0f0" }}>
+              {UPCOMING.map(({ country, flag, subtitle }) => (
+                <div
+                  key={country}
+                  className="flex items-center gap-4 py-3.5"
+                  style={{ borderBottom: "1px solid #f0f0f0" }}
+                >
+                  <span className="text-2xl flex-shrink-0" style={{ opacity: 0.55 }} role="img" aria-label={country}>
+                    {flag}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-grey-700">{country}</p>
+                    <p className="text-xs text-grey-400 truncate">{subtitle}</p>
+                  </div>
+                  <span
+                    className="text-[9px] font-semibold tracking-widest uppercase flex-shrink-0 px-2 py-0.5 rounded-full"
+                    style={{
+                      color:  "rgba(0,0,0,0.25)",
+                      border: "1px solid rgba(0,0,0,0.12)",
+                    }}
+                  >
                     Soon
                   </span>
                 </div>
-                <p className="text-green-deep/40 text-xs truncate">{subtitle}</p>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
 
+        </div>
       </div>
     </section>
   );
